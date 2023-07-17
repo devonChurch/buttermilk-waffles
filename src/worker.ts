@@ -25,8 +25,34 @@ export interface Env {
 	// MY_QUEUE: Queue;
 }
 
+const shell = `<!doctype html>
+<html>
+
+	<body>
+			<h1>Hello World! (Typescript)</h1>
+
+			<h2>Canada</h2>
+			<a href="https://app.ca.buttermilk-waffles.devon.pizza">Home<a>
+			<a href="https://app.ca.buttermilk-waffles.devon.pizza/foo">Foo<a>
+			<a href="https://app.ca.buttermilk-waffles.devon.pizza/bar">Bar<a>
+
+			<h2>Generic</h2>
+			<a href="https://app.buttermilk-waffles.devon.pizza">Home<a>
+			<a href="https://app.buttermilk-waffles.devon.pizza/foo">Foo<a>
+			<a href="https://app.buttermilk-waffles.devon.pizza/bar">Bar<a>
+	</body>
+
+</html>
+		`
+
 export default {
 	async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
-		return new Response('Hello World! (Typescript)');
+		return new Response(shell, {
+			status: 200,
+			statusText: "OK" ,
+			headers: new Headers({
+				"Content-Type": "text/html"
+			})
+		});
 	},
 };

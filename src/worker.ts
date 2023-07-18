@@ -102,65 +102,80 @@ export default {
 
 
 		return new Response((`<!doctype html>
-		<html>
+		<html lang="en">
 
-			<body>
-					<h1>${requestPlatform === "app" ? "User Experience" : "Admin Portal"}</h1>
-					<p>Cloudflare Multi-Region XXXxxxxx xxxxxx</p>
+			<head>
+				<meta charset="utf-8">
+				<meta name="viewport" content="width=device-width, initial-scale=1">
+				<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+			</head>
 
-					<h2>Logs</h2>
-					<ul>
-						<li>
-							Request:
-							<ul>
-								<li><strong>Platform:</strong> ${requestPlatform ?? "---"}</li>
-								<li><strong>Region:</strong> ${requestRegion ?? "---"}</li>
-								<li><strong>HREF:</strong> ${requestHref ?? "---"}</li>
-							</ul>
+			<body class="bg-light">
+
+				<main class="container-md py-4">
+
+					<h1 class="mb-4">${requestPlatform === "app" ? "💡 User Experience" : "⚙️ Admin Portal"}</h1>
+
+					<ul class="list-group bg-white rounded-3 shadow">
+						<li class="list-group-item p-4">
+
+							<h2 class="h3 mb-3">🔗 Routes</h2>
+							<div class="d-flex flex-row gap-3">
+								<a class="btn btn-outline-primary" href="https://${requestPlatform}.buttermilk-waffles.devon.pizza">Home</a>
+								<a class="btn btn-outline-primary" href="https://${requestPlatform}.buttermilk-waffles.devon.pizza/foo">Foo</a>
+								<a class="btn btn-outline-primary" href="https://${requestPlatform}.buttermilk-waffles.devon.pizza/bar">Bar</a>
+							</div>
 						</li>
-						<li>
-							Referrer:
-							<ul>
-								<li><strong>Platform:</strong> ${extractPlatformFromHref(referrerHref) ?? "---"}</li>
-								<li><strong>Region:</strong> ${referrerRegion ?? "---"}</li>
-								<li><strong>HREF:</strong> ${referrerHref ?? "---"}</li>
-							</ul>
+
+
+						<li class="list-group-item p-4">
+
+							<h2 class="h3 mb-3">🌏 Regions</h2>
+							<div class="d-flex flex-row gap-3">
+								<a class="btn btn-outline-primary" href="https://${requestPlatform}.buttermilk-waffles.devon.pizza" rel="noreferrer">Regionless</a>
+								<a class="btn btn-outline-primary" href="https://${requestPlatform}.ca.buttermilk-waffles.devon.pizza" rel="noreferrer">Canada</a>
+							</div>
+						</li>
+
+
+						<li class="list-group-item p-4">
+
+							<h2 class="h3 mb-3">🚧 Platform</h2>
+							<div class="d-flex flex-row gap-3">
+								<a class="btn btn-outline-primary" href="https://app.buttermilk-waffles.devon.pizza">App</a>
+								<a class="btn btn-outline-primary" href="https://admin.buttermilk-waffles.devon.pizza">Admin</a>
+							</div>
+						</li>
+
+
+						<li class="list-group-item p-4">
+
+							<h2 class="h3 mb-3">📝 Logs</h2>
+
+							<div class="d-flex flex-column gap-4">
+								<div class="p-3 border rounded bg-light">
+									<h3 class="h6">Request:</h3>
+									<ul>
+										<li><strong>Platform:</strong> ${requestPlatform ?? "---"}</li>
+										<li><strong>Region:</strong> ${requestRegion ?? "---"}</li>
+										<li><strong>HREF:</strong> ${requestHref ?? "---"}</li>
+									</ul>
+								</div>
+
+								<div class="p-3 border rounded bg-light">
+									<h3 class="h6">Referrer:</h3>
+									<ul>
+										<li><strong>Platform:</strong> ${extractPlatformFromHref(referrerHref) ?? "---"}</li>
+										<li><strong>Region:</strong> ${referrerRegion ?? "---"}</li>
+										<li><strong>HREF:</strong> ${referrerHref ?? "---"}</li>
+									</ul>
+								</div>
+							</div>
+
 						</li>
 					</ul>
 
-					<h2>Routes</h2>
-					<p></p>
-					<ul>
-						<li>
-							<a href="https://${requestPlatform}.buttermilk-waffles.devon.pizza">Home<a>
-						</li>
-						<li>
-							<a href="https://${requestPlatform}.buttermilk-waffles.devon.pizza/foo">Foo<a>
-						</li>
-						<li>
-							<a href="https://${requestPlatform}.buttermilk-waffles.devon.pizza/bar">Bar<a>
-						</li>
-					</ul>
-
-					<h2>Region Selector</h2>
-					<ul>
-						<li>
-							<a href="https://${requestPlatform}.buttermilk-waffles.devon.pizza" rel="noreferrer">Regionless</a>
-						</li>
-						<li>
-							<a href="https://${requestPlatform}.ca.buttermilk-waffles.devon.pizza" rel="noreferrer">Canada</a>
-						</li>
-					</ul>
-
-					<h2>Platform</h2>
-					<ul>
-						<li>
-							<a href="https://app.buttermilk-waffles.devon.pizza">App</a>
-						</li>
-						<li>
-							<a href="https://admin.buttermilk-waffles.devon.pizza">Admin</a>
-						</li>
-					</ul>
+				</main>
 			</body>
 
 		</html>

@@ -28,11 +28,6 @@ export interface Env {
 const extractRegionFromHref = (href?: string): string | undefined => {
 
 	if (!href) return undefined;
-	// const [
-	// 	originOrUndefined,
-	// 	originOrRegion,
-	// 	...remainingHostnames
-	// ] =
 
 	const subdomains = new URL(href).hostname.split(".").reverse();
 
@@ -41,29 +36,31 @@ const extractRegionFromHref = (href?: string): string | undefined => {
 	let [_1, _2, _3, region, platform] = subdomains;
 
 	return platform ? region : undefined;
+};
 
-	// if (!platform) {
-	// 	let [_1, _2, _3, platformOverride] = subdomains;
-	// 	platform = platformOverride;
-	// 	region = "";
-	// }
+const extractPlatformFromHref = (href?: string): string | undefined => {
 
-	// return region;
+	if (!href) return undefined;
 
-	// ['pizza', 'devon', 'buttermilk-waffles', 'app', undefined]
+	const subdomains = new URL(href).hostname.split(".").reverse();
 
+	const [_1, _2, _3, platformWithoutRegion, platformWithRegion] = subdomains;
+
+	return platformWithRegion ?? platformWithoutRegion ?? undefined;
 };
 
 const enrichRegionIntoHref = (href: string, region?: string) => {
 
 	const url = new URL(href);
-	const subdomains = url.hostname.split(".").reverse();
-	const [_1, _2, _3, platformWithoutRegion, platformWithRegion] = subdomains;
+	const platform = extractPlatformFromHref(href);
+	const [domain, name, project, ..._1 ] = url.hostname.split(".").reverse();
 
 	url.hostname = [
-		platformWithRegion ?? platformWithoutRegion,
+		platform,
 		region,
-		_3, _2, _1
+		project,
+		name,
+		domain,
 	].filter(Boolean).join(".");
 
 	return url.href;
@@ -101,33 +98,69 @@ export default {
 			});
 		}
 
+		const requestPlatform = extractPlatformFromHref(requestHref);
+
 
 		return new Response((`<!doctype html>
 		<html>
 
 			<body>
-					<h1>Hello World! (Typescript)</h1>
+					<h1>${requestPlatform === "app" ? "User Experience" : "Admin Portal"}</h1>
+					<p>Cloudflare Multi-Region XXXxxxxx xxxxxx</p>
 
 					<h2>Logs</h2>
 					<ul>
-						<li>referrerHref: ${referrerHref}</li>
-						<li>referrerRegion: ${referrerRegion}</li>
-						<li>requestHref: ${requestHref}</li>
-						<li>requestRegion: ${requestRegion}</li>
+						<li>
+							Request:
+							<ul>
+								<li><strong>Platform:</strong> ${requestPlatform ?? "---"}</li>
+								<li><strong>Region:</strong> ${requestRegion ?? "---"}</li>
+								<li><strong>HREF:</strong> ${requestHref ?? "---"}</li>
+							</ul>
+						</li>
+						<li>
+							Referrer:
+							<ul>
+								<li><strong>Platform:</strong> ${extractPlatformFromHref(referrerHref) ?? "---"}</li>
+								<li><strong>Region:</strong> ${referrerRegion ?? "---"}</li>
+								<li><strong>HREF:</strong> ${referrerHref ?? "---"}</li>
+							</ul>
+						</li>
+					</ul>
+
+					<h2>Routes</h2>
+					<p></p>
 					<ul>
-
-					<h2>Canada</h2>
-					<a href="https://app.ca.buttermilk-waffles.devon.pizza">Home<a>
-					<a href="https://app.ca.buttermilk-waffles.devon.pizza/foo">Foo<a>
-					<a href="https://app.ca.buttermilk-waffles.devon.pizza/bar">Bar<a>
-
-					<h2>Generic</h2>
-					<a href="https://app.buttermilk-waffles.devon.pizza">Home<a>
-					<a href="https://app.buttermilk-waffles.devon.pizza/foo">Foo<a>
-					<a href="https://app.buttermilk-waffles.devon.pizza/bar">Bar<a>
+						<li>
+							<a href="https://${requestPlatform}.buttermilk-waffles.devon.pizza">Home<a>
+						</li>
+						<li>
+							<a href="https://${requestPlatform}.buttermilk-waffles.devon.pizza/foo">Foo<a>
+						</li>
+						<li>
+							<a href="https://${requestPlatform}.buttermilk-waffles.devon.pizza/bar">Bar<a>
+						</li>
+					</ul>
 
 					<h2>Region Selector</h2>
-					no referrer = change region
+					<ul>
+						<li>
+							<a href="https://${requestPlatform}.buttermilk-waffles.devon.pizza" rel="noreferrer">Regionless</a>
+						</li>
+						<li>
+							<a href="https://${requestPlatform}.ca.buttermilk-waffles.devon.pizza" rel="noreferrer">Canada</a>
+						</li>
+					</ul>
+
+					<h2>Platform</h2>
+					<ul>
+						<li>
+							<a href="https://app.buttermilk-waffles.devon.pizza">App</a>
+						</li>
+						<li>
+							<a href="https://admin.buttermilk-waffles.devon.pizza">Admin</a>
+						</li>
+					</ul>
 			</body>
 
 		</html>

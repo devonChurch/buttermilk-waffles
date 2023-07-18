@@ -25,29 +25,113 @@ export interface Env {
 	// MY_QUEUE: Queue;
 }
 
-const shell = `<!doctype html>
-<html>
+const extractRegionFromHref = (href?: string): string | undefined => {
 
-	<body>
-			<h1>Hello World! (Typescript)</h1>
+	if (!href) return undefined;
+	// const [
+	// 	originOrUndefined,
+	// 	originOrRegion,
+	// 	...remainingHostnames
+	// ] =
 
-			<h2>Canada</h2>
-			<a href="https://app.ca.buttermilk-waffles.devon.pizza">Home<a>
-			<a href="https://app.ca.buttermilk-waffles.devon.pizza/foo">Foo<a>
-			<a href="https://app.ca.buttermilk-waffles.devon.pizza/bar">Bar<a>
+	const subdomains = new URL(href).hostname.split(".").reverse();
 
-			<h2>Generic</h2>
-			<a href="https://app.buttermilk-waffles.devon.pizza">Home<a>
-			<a href="https://app.buttermilk-waffles.devon.pizza/foo">Foo<a>
-			<a href="https://app.buttermilk-waffles.devon.pizza/bar">Bar<a>
-	</body>
+	// ['pizza', 'devon', 'buttermilk-waffles', 'ca', 'app']
 
-</html>
-		`
+	let [_1, _2, _3, region, platform] = subdomains;
+
+	return platform ? region : undefined;
+
+	// if (!platform) {
+	// 	let [_1, _2, _3, platformOverride] = subdomains;
+	// 	platform = platformOverride;
+	// 	region = "";
+	// }
+
+	// return region;
+
+	// ['pizza', 'devon', 'buttermilk-waffles', 'app', undefined]
+
+};
+
+const enrichRegionIntoHref = (href: string, region?: string) => {
+
+	const url = new URL(href);
+	const subdomains = url.hostname.split(".").reverse();
+	const [_1, _2, _3, platformWithoutRegion, platformWithRegion] = subdomains;
+
+	url.hostname = [
+		platformWithRegion ?? platformWithoutRegion,
+		region,
+		_3, _2, _1
+	].filter(Boolean).join(".");
+
+	return url.href;
+};
+
+const extractReferrerFromRequest = (request: Request) => {
+	const referrer = request.headers.get("Referer");
+
+	return referrer ?? undefined; // Remove `null` reference!
+
+}
 
 export default {
 	async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
-		return new Response(shell, {
+
+		// Request.referrer
+		// request.headers.get("Referer")
+
+		// if referrer region !== request region
+		// - Then enrich request with referrer region
+
+		const referrerHref = extractReferrerFromRequest(request);
+		const referrerRegion = extractRegionFromHref(referrerHref);
+
+		const requestHref = request.url;
+		const requestRegion = extractRegionFromHref(requestHref);
+
+		if (referrerRegion && referrerRegion !== requestRegion) {
+			return new Response("", {
+				status: 307,
+				headers: new Headers({
+					"Location": enrichRegionIntoHref(requestHref, referrerRegion),
+					"Content-Type": "text/html"
+				})
+			});
+		}
+
+
+		return new Response((`<!doctype html>
+		<html>
+
+			<body>
+					<h1>Hello World! (Typescript)</h1>
+
+					<h2>Logs</h2>
+					<ul>
+						<li>referrerHref: ${referrerHref}</li>
+						<li>referrerRegion: ${referrerRegion}</li>
+						<li>requestHref: ${requestHref}</li>
+						<li>requestRegion: ${requestRegion}</li>
+					<ul>
+
+					<h2>Canada</h2>
+					<a href="https://app.ca.buttermilk-waffles.devon.pizza">Home<a>
+					<a href="https://app.ca.buttermilk-waffles.devon.pizza/foo">Foo<a>
+					<a href="https://app.ca.buttermilk-waffles.devon.pizza/bar">Bar<a>
+
+					<h2>Generic</h2>
+					<a href="https://app.buttermilk-waffles.devon.pizza">Home<a>
+					<a href="https://app.buttermilk-waffles.devon.pizza/foo">Foo<a>
+					<a href="https://app.buttermilk-waffles.devon.pizza/bar">Bar<a>
+
+					<h2>Region Selector</h2>
+					no referrer = change region
+			</body>
+
+		</html>
+				`), {
 			status: 200,
 			statusText: "OK" ,
 			headers: new Headers({

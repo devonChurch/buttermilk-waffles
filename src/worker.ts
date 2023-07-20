@@ -117,15 +117,6 @@ export default {
 					<h1 class="mb-4">${requestPlatform === "app" ? "💡 User Experience" : "⚙️ Admin Portal"}</h1>
 
 					<ul class="list-group bg-white rounded-3 shadow">
-						<li class="list-group-item p-4">
-
-							<h2 class="h3 mb-3">🔗 Routes</h2>
-							<div class="d-flex flex-row gap-3">
-								<a class="btn btn-outline-primary" href="https://${requestPlatform}.buttermilk-waffles.devon.pizza">Home</a>
-								<a class="btn btn-outline-primary" href="https://${requestPlatform}.buttermilk-waffles.devon.pizza/foo">Foo</a>
-								<a class="btn btn-outline-primary" href="https://${requestPlatform}.buttermilk-waffles.devon.pizza/bar">Bar</a>
-							</div>
-						</li>
 
 
 						<li class="list-group-item p-4">
@@ -142,8 +133,40 @@ export default {
 
 							<h2 class="h3 mb-3">🚧 Platform</h2>
 							<div class="d-flex flex-row gap-3">
-								<a class="btn btn-outline-primary" href="https://app.buttermilk-waffles.devon.pizza">App</a>
-								<a class="btn btn-outline-primary" href="https://admin.buttermilk-waffles.devon.pizza">Admin</a>
+								<a class="btn btn-outline-primary" href="https://app.buttermilk-waffles.devon.pizza">User Experience</a>
+								<a class="btn btn-outline-primary" href="https://admin.buttermilk-waffles.devon.pizza">Admin Portal</a>
+							</div>
+						</li>
+
+						<li class="list-group-item p-4">
+
+							<h2 class="h3 mb-3">🎨 Content</h2>
+							<div id="content" class="d-flex flex-column gap-4">
+
+							</div>
+						</li>
+
+						<li class="list-group-item p-4">
+							<h2 class="h3 mb-3">🔗 Routes</h2>
+
+							<div class="d-flex flex-column gap-4">
+								<div class="p-3 border rounded bg-light">
+									<h3 class="h6">Server:</h3>
+									<div class="d-flex flex-row gap-3">
+										<a class="btn btn-outline-primary" href="https://${requestPlatform}.buttermilk-waffles.devon.pizza">Home</a>
+										<a class="btn btn-outline-primary" href="https://${requestPlatform}.buttermilk-waffles.devon.pizza/assessments">Assessments</a>
+										<a class="btn btn-outline-primary" href="https://${requestPlatform}.buttermilk-waffles.devon.pizza/content">Content</a>
+									</div>
+								</div>
+
+								<div class="p-3 border rounded bg-light">
+									<h3 class="h6">Client:</h3>
+									<div class="d-flex flex-row gap-3">
+										<a class="btn btn-outline-primary" href="/enrolments">Enrolments</a>
+										<a class="btn btn-outline-primary" href="/insight">Insights</a>
+										<a class="btn btn-outline-primary" href="/pathways">Pathways</a>
+									</div>
+								</div>
 							</div>
 						</li>
 
@@ -152,7 +175,7 @@ export default {
 
 							<h2 class="h3 mb-3">📝 Logs</h2>
 
-							<div class="d-flex flex-column gap-4">
+							<div id="logs" class="d-flex flex-column gap-4">
 								<div class="p-3 border rounded bg-light">
 									<h3 class="h6">Request:</h3>
 									<ul>
@@ -176,6 +199,40 @@ export default {
 					</ul>
 
 				</main>
+
+				<script>
+					const enrichContent = () => {
+						const text = document.querySelector(\`a[href$="\$\{window.location.pathname\}"]\`)?.innerHTML ?? "Home";
+
+						document.getElementById("content").innerHTML = (\`
+							<div class="p-3 border rounded bg-light">
+								<h3 class="h6"><strong>\$\{text\}:</strong></h3>
+								<p class="mb-0">You are on the \$\{text\} page inside the ${requestPlatform} platform.</p>
+							</div>
+						\`)
+					}
+
+					[...document.querySelectorAll('a[href^="/"]')]
+						.forEach(element => element.addEventListener("click", (event) => {
+							event.preventDefault();
+							window.history.pushState("", {}, event.target.href);
+
+							document.getElementById("logs").innerHTML = (\`
+								<div class="p-3 border rounded bg-light">
+									<h3 class="h6">Client:</h3>
+									<ul>
+										<li><strong>Pathname:</strong> \$\{event.target.pathname\}</li>
+									</ul>
+								</div>
+							\`);
+
+							enrichContent();
+						}));
+
+						enrichContent();
+
+				</script>
+
 			</body>
 
 		</html>
